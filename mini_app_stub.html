@@ -1,0 +1,376 @@
+<title>РБК Аэро</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+
+  :root {
+    --bg-top: #1a2a45;
+    --bg-bottom: #0b1120;
+    --ink: #f3f6fb;
+    --muted: #93a3ba;
+    --muted-dim: #5b6b83;
+    --accent: #4a97dc;
+    --accent-soft: rgba(74, 151, 220, 0.16);
+    --accent-line: rgba(74, 151, 220, 0.4);
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --err: #f87171;
+    --font-display: "Sora", system-ui, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6vh 6vw;
+    background: radial-gradient(120% 140% at 78% 12%, #22375a 0%, var(--bg-top) 38%, var(--bg-bottom) 100%);
+    color: var(--ink);
+    font-family: var(--font-display);
+    overflow-x: hidden;
+  }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  .mark {
+    position: absolute;
+    top: 18%;
+    right: -6vw;
+    transform: translateY(-50%);
+    width: min(40vw, 320px);
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    max-width: 500px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    border-radius: 999px;
+    padding: 0.45em 1em;
+    margin-bottom: 1.4rem;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  h1 {
+    font-size: clamp(2.1rem, 4.4vw, 2.9rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.6rem;
+    text-wrap: balance;
+  }
+
+  p.lead {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 2rem;
+    max-width: 44ch;
+  }
+
+  .panel {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 14px;
+    padding: 1.4rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .field label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted-dim);
+    margin-bottom: 0.4rem;
+  }
+
+  .field input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 0.6em 0.8em;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .field input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .status-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+  }
+
+  .status-line {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+  }
+
+  .status-line dt {
+    font-family: var(--font-mono);
+    color: var(--muted-dim);
+    min-width: 7em;
+    font-size: 0.78rem;
+  }
+
+  .status-line dd {
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0.15em 0.7em;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+  }
+  .pill::before {
+    content: "";
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .pill.ok { color: var(--ok); }
+  .pill.warn { color: var(--warn); }
+  .pill.err { color: var(--err); }
+  .pill.muted { color: var(--muted-dim); }
+
+  button.primary {
+    appearance: none;
+    border: none;
+    border-radius: 9px;
+    padding: 0.75em 1.2em;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #0b1120;
+    background: var(--accent);
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  button.primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  button.primary:not(:disabled):hover {
+    opacity: 0.9;
+  }
+
+  .error-box {
+    display: none;
+    font-size: 0.82rem;
+    color: var(--err);
+    font-family: var(--font-mono);
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  .error-box.visible { display: block; }
+
+  @media (max-width: 640px) {
+    .mark { display: none; }
+    .content { max-width: 100%; }
+  }
+</style>
+
+<div class="stage">
+  <svg class="mark" viewBox="0 0 512 512" aria-hidden="true">
+    <polygon points="256,182 391,302 256,238 205,338 187,338" fill="var(--accent)" opacity="0.55"/>
+    <polygon points="238,164 373,284 238,220 187,320 169,320" fill="#f3f6fb"/>
+  </svg>
+  <div class="content">
+    <span class="eyebrow" id="envBadge">В разработке</span>
+    <h1>РБК Аэро</h1>
+    <p class="lead">
+      Временная заглушка Mini App — для ручной проверки цикла подачи
+      заявки на доступ к каталогу, пока настоящий фронтенд не задеплоен.
+    </p>
+
+    <div class="panel">
+      <div class="field">
+        <label for="backendUrl">Адрес backend</label>
+        <input id="backendUrl" type="text" value="http://127.0.0.1:8080" spellcheck="false" />
+      </div>
+
+      <dl class="status-row" id="statusRow">
+        <div class="status-line">
+          <dt>Telegram</dt>
+          <dd id="tgState"><span class="pill muted">проверка...</span></dd>
+        </div>
+        <div class="status-line">
+          <dt>Пользователь</dt>
+          <dd id="userState">—</dd>
+        </div>
+        <div class="status-line">
+          <dt>Статус доступа</dt>
+          <dd id="accessState">—</dd>
+        </div>
+      </dl>
+
+      <button class="primary" id="requestBtn" disabled>Подать заявку на доступ</button>
+      <div class="error-box" id="errorBox"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const tgStateEl = document.getElementById("tgState");
+  const userStateEl = document.getElementById("userState");
+  const accessStateEl = document.getElementById("accessState");
+  const btn = document.getElementById("requestBtn");
+  const errorBox = document.getElementById("errorBox");
+  const backendUrlInput = document.getElementById("backendUrl");
+
+  let token = null;
+
+  function showError(context, err) {
+    errorBox.textContent = context + ": " + (err && err.message ? err.message : String(err));
+    errorBox.classList.add("visible");
+  }
+
+  function clearError() {
+    errorBox.classList.remove("visible");
+    errorBox.textContent = "";
+  }
+
+  function pill(text, kind) {
+    return '<span class="pill ' + kind + '">' + text + "</span>";
+  }
+
+  function renderAccessStatus(status) {
+    const map = {
+      no_request: ["заявки нет", "warn"],
+      pending: ["на рассмотрении", "warn"],
+      granted: ["доступ предоставлен", "ok"],
+      rejected: ["отклонена", "err"],
+      revoked: ["отозван", "err"],
+    };
+    const [text, kind] = map[status] || [status, "muted"];
+    accessStateEl.innerHTML = pill(text, kind);
+    btn.disabled = status !== "no_request";
+    btn.textContent =
+      status === "pending"
+        ? "Заявка уже на рассмотрении"
+        : status === "granted"
+          ? "Доступ уже предоставлен"
+          : status === "rejected"
+            ? "Заявка отклонена"
+            : status === "revoked"
+              ? "Доступ отозван"
+              : "Подать заявку на доступ";
+  }
+
+  async function api(path, options) {
+    const base = backendUrlInput.value.replace(/\/$/, "");
+    const headers = Object.assign(
+      { "Content-Type": "application/json" },
+      options && options.headers,
+      token ? { Authorization: "Bearer " + token } : {}
+    );
+    const res = await fetch(base + path, Object.assign({}, options, { headers }));
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error("HTTP " + res.status + " " + body);
+    }
+    return res.status === 204 ? null : res.json();
+  }
+
+  async function refreshMe() {
+    const me = await api("/users/me", { method: "GET" });
+    userStateEl.textContent =
+      (me.full_name || "—") + " · telegram_id " + me.telegram_id + " · " + me.role;
+    renderAccessStatus(me.status);
+    return me;
+  }
+
+  async function init() {
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (!tg || !tg.initData) {
+      tgStateEl.innerHTML = pill("не в Telegram", "err");
+      showError(
+        "Telegram",
+        new Error(
+          "initData пуст — откройте страницу через t.me/rbk_aero_bot/app, не напрямую в браузере"
+        )
+      );
+      return;
+    }
+
+    tg.ready();
+    tgStateEl.innerHTML = pill("initData получен", "ok");
+
+    try {
+      const auth = await api("/auth/telegram", {
+        method: "POST",
+        body: JSON.stringify({ init_data: tg.initData }),
+      });
+      token = auth.access_token;
+      clearError();
+      await refreshMe();
+    } catch (err) {
+      showError("Авторизация", err);
+    }
+  }
+
+  btn.addEventListener("click", async function () {
+    btn.disabled = true;
+    try {
+      await api("/users/me/access-request", { method: "POST" });
+      clearError();
+      await refreshMe();
+    } catch (err) {
+      showError("Подача заявки", err);
+      btn.disabled = false;
+    }
+  });
+
+  init();
+})();
+</script>
